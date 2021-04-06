@@ -42,41 +42,73 @@
 #
 .data
 	displayAddress:	.word	0x10008000
+	
 .text
 	lw $t0, displayAddress	# $t0 stores the base address for display
-	li $t1, 0xfffaf5	# $t1 stores the blue colour code
+	li $t1, 0xfffaf5	# $t1 stores the white colour code
 	li $t4, 0x8ec27e	# $t2 stores the green colour code
 	li $t3, 0xff0000	# $t3 stores the red colour code
+	li $t6, 0x0000ff
 	
 	sw $t1, 0($t0)	 # paint the first (top-left) unit red. 
-
-	
+		
+		
+	lw $t0, displayAddress
+	#first loop paints the whole display white
 	LOOPINIT:
 		li $t2, 0 #the loop variant
 	WHILE:
-		sw $t1, ($t0)
-		addi $t2, $t2, 4
-		add $t0, $t0, 4
+		sw $t1, ($t0) #store the location of the white in first position
+		addi $t2, $t2, 4 #increment by a byte for the loop variant
+		add $t0, $t0, 4 #increment by a byte
 		
-		beq $t2, 4092, THEN
+		beq $t2, 4092, THEN #branch if t2 is equal to 4092, if so move on to THEN
 		
 		j WHILE
 	THEN:
-		sw $t1, ($t0)
-		addi $t2, $t2, 4
+		sw $t1, ($t0) #store the value of t0 in t1
+		addi $t2, $t2, 4 #increment by a byte
 		
-		j DONE
+		j DONE #jump to done
 	DONE:
+	
+	
+	#making the doodle
+	lw $t0, displayAddress
+	LOOPINT2:
+		li $t2, 0
+		sw $t1, 0($t0)
+	WHILE3:
+		sw $t1, 0($t0)
+		addi $t2, $t2, 4
+		add $t0, $t0, 4
+		beq $t2, 3760, MAKINGHEAD
+		beq, $t2, 4092, DONE3
+		
+		j WHILE3
+		
+	MAKINGHEAD:
+		sw $t6, 0($t0)
+		sw $t6, 4($t0)
+		sw $t6, 8($t0)
+		sw $t6, 12($t0)
+		add $t0, $t0, 4
+		addi $t2, $t2, 4
+		j WHILE3
+	DONE3:
+	
+	
+	
 	
 	
 	
 	
 	
 	LOOP2:
-		lw $t0, displayAddress
-		li $t2, 0
+		lw $t0, displayAddress 
+		li $t2, 0 #load the value 0 for the loop
 		addi $a1, $zero, 32 
-		addi $v0, $zero, 42
+		addi $v0, $zero, 42 #random int
 		syscall
 		move $t3, $a0
 		mul $a0, $a0, 4
